@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Private Health Check</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ============ Header ============ -->
+  <header class="hero">
+    <h1>Private Health Check</h1>
+    <p class="pitch">
+      A patient's home device <strong>locks</strong> its health data before sending it.
+      The hospital's AI calculates the heart-disease risk <strong>without ever unlocking it</strong>,
+      and only the patient can read the answer.
+    </p>
+    <p class="how">Try it: move the sliders, then press <em>Check my risk privately</em>.</p>
+  </header>
+
+  <main>
+
+    <!-- ============ Key status ============ -->
+    <div id="key-status" class="status-bar">Creating encryption keys on the patient device...</div>
+
+    <!-- ============ Split screen ============ -->
+    <section class="split">
+
+      <!-- Patient side -->
+      <div class="panel patient">
+        <h2>🏠 Home device <span class="tag">Patient</span></h2>
+        <p class="sub">The secret key never leaves this side.</p>
+
+        <div id="sliders" class="sliders"><!-- built by app.js --></div>
+
+        <button id="btn-check" class="primary" disabled>Check my risk privately</button>
+
+        <div id="result" class="result hidden">
+          <div class="result-title">Unlocked on the patient device</div>
+          <div class="result-value"><span id="res-percent">--</span></div>
+          <div id="res-label" class="result-label">--</div>
+        </div>
+      </div>
+
+      <!-- Arrow -->
+      <div class="arrow" aria-hidden="true">
+        <div>🔒</div>
+        <div class="arrow-line">&rarr;</div>
+        <div class="arrow-note">only locked data travels</div>
+      </div>
+
+      <!-- Hospital side -->
+      <div class="panel hospital">
+        <h2>🏥 Hospital server <span class="tag">Hospital</span></h2>
+        <p class="sub">Has the AI model. Cannot read patient data.</p>
+
+        <div class="box">
+          <div class="box-title">What the hospital receives</div>
+          <div id="hospital-received" class="scramble">Waiting for data...</div>
+          <div id="hospital-received-note" class="note"></div>
+        </div>
+
+        <div class="box">
+          <div class="box-title">What the hospital does</div>
+          <ol id="hospital-ops" class="ops"><li class="muted">Nothing yet.</li></ol>
+          <div id="hospital-note" class="note"></div>
+        </div>
+
+        <div class="box">
+          <div class="box-title">Hospital's view of the secret key</div>
+          <div id="hospital-key" class="note">Not yet checked.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Proof strip ============ -->
+    <section class="proof">
+      <h2>Proof it works</h2>
+      <div class="proof-grid">
+        <div class="proof-item">
+          <div class="proof-label">Normal (unencrypted) result</div>
+          <div id="proof-plain" class="proof-value">--</div>
+          <div class="note">Same calculation, with the sigmoid replaced by its polynomial</div>
+        </div>
+        <div class="proof-item">
+          <div class="proof-label">Encrypted result</div>
+          <div id="proof-enc" class="proof-value">--</div>
+          <div class="note">Computed on locked data</div>
+        </div>
+        <div class="proof-item">
+          <div class="proof-label">Difference</div>
+          <div id="proof-diff" class="proof-value">--</div>
+          <div class="note">Tiny noise is normal in this type of encryption</div>
+        </div>
+        <div class="proof-item">
+          <div class="proof-label">True sigmoid result</div>
+          <div id="proof-true" class="proof-value">--</div>
+          <div class="note">Gap = cost of the polynomial approximation</div>
+        </div>
+        <div class="proof-item">
+          <div class="proof-label">Time (encrypt / hospital / decrypt)</div>
+          <div id="proof-time" class="proof-value">--</div>
+          <div class="note">In seconds</div>
+        </div>
+        <div class="proof-item">
+          <div class="proof-label">Data size (normal vs locked)</div>
+          <div id="proof-size" class="proof-value">--</div>
+          <div class="note">Encryption makes data bigger</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Spy ============ -->
+    <section class="spy">
+      <h2>🕵️ What if someone intercepts the traffic?</h2>
+      <p>Press the button to see exactly what an eavesdropper would capture.</p>
+      <button id="btn-spy" class="secondary" disabled>Try to spy</button>
+      <div id="spy-output" class="spy-output hidden"></div>
+    </section>
+
+    <!-- ============ Math ============ -->
+    <section class="math">
+      <h2>The math behind it (short version)</h2>
+      <p>
+        The model computes <code>risk = sigmoid(w · x + b)</code>. Encryption can only add and multiply,
+        so the curved sigmoid is replaced by a simple polynomial,
+        <code>0.5 + a₁·z + a₃·z³</code>, fitted to the range the model actually uses.
+      </p>
+      <div class="chart-wrap"><canvas id="sigmoid-chart"></canvas></div>
+      <p id="math-info" class="note"></p>
+    </section>
+
+    <!-- ============ Model info ============ -->
+    <section class="info">
+      <h2>About the model</h2>
+      <div id="model-info" class="note">Loading...</div>
+    </section>
+
+    <!-- ============ Honest limitations ============ -->
+    <section class="limits">
+      <h2>Honest limitations</h2>
+      <ul>
+        <li>This is a <strong>simulation of two parties</strong> in one app. The boundary is enforced in code, not by the network, and the patient's secret key is held in server memory for the demo.</li>
+        <li>The data is a <strong>small public dataset</strong> (UCI Heart Disease), not real patient data. The model is simple (logistic regression) and is not medical advice.</li>
+        <li>The hospital knows the model and sees the size of the data. Encryption protects <strong>the patient's values and the result</strong>, not the model.</li>
+        <li>Encrypted inference protects the data during computation. It does <strong>not</strong> by itself prevent attacks on the model such as membership inference. That is a research direction for the PhD.</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer>
+    Prototype for the PATAI research group application, built with FastAPI and TenSEAL (CKKS).
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

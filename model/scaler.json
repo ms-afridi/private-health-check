@@ -1,0 +1,64 @@
+{
+  "mean": [
+    54.66079295154185,
+    0.6872246696035242,
+    130.77533039647577,
+    250.09251101321587,
+    150.19823788546256,
+    0.32158590308370044,
+    0.9722466960352422
+  ],
+  "std": [
+    8.889651722158296,
+    0.4636236869400133,
+    17.162804501916753,
+    53.8137208511416,
+    22.07516986680411,
+    0.46708501369830074,
+    1.0947112631711409
+  ],
+  "ranges": {
+    "age": {
+      "label": "Age (years)",
+      "min": 29.0,
+      "max": 77.0,
+      "default": 56.0
+    },
+    "sex": {
+      "label": "Sex (0 = female, 1 = male)",
+      "min": 0.0,
+      "max": 1.0,
+      "default": 1.0
+    },
+    "trestbps": {
+      "label": "Resting blood pressure (mmHg)",
+      "min": 94.0,
+      "max": 200.0,
+      "default": 130.0
+    },
+    "chol": {
+      "label": "Cholesterol (mg/dl)",
+      "min": 126.0,
+      "max": 564.0,
+      "default": 241.0
+    },
+    "thalach": {
+      "label": "Max heart rate (bpm)",
+      "min": 71.0,
+      "max": 202.0,
+      "default": 153.0
+    },
+    "exang": {
+      "label": "Chest pain during exercise (0 = no, 1 = yes)",
+      "min": 0.0,
+      "max": 1.0,
+      "default": 0.0
+    },
+    "oldpeak": {
+      "label": "ST depression (ECG measure)",
+      "min": 0.0,
+      "max": 7.0,
+      "default": 0.8
+    }
+  }
+}

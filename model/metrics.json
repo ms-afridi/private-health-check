@@ -1,0 +1,11 @@
+{
+  "dataset": "UCI Heart Disease (Cleveland)",
+  "n_samples": 303,
+  "n_train": 227,
+  "n_test": 76,
+  "accuracy": 0.8158,
+  "auc": 0.9136,
+  "logit_min": -3.815835485796657,
+  "logit_max": 4.213820192144821,
+  "seed": 42
+}
